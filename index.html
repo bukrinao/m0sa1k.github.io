@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Words</title>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+			font-family: 'EBGaramond';
+		}
+		h1{
+			color: gray;
+			font-size: 2.5em;
+			margin: 1vh;
+			padding: 2vh;
+		}
+		p.word{
+			text-align: center;
+			font-size: 1.2vw;
+			cursor: pointer;
+			padding: 1vw;
+			margin: 1vw;
+			border-radius: 5px;
+			display: inline-block;
+		}
+		p.green{
+			background: lightgreen;
+			border: 1px solid green;
+		}
+		p.yellow{
+			background: lightyellow;
+			border: 1px solid yellow;
+		}
+		p.red{
+			background: pink;
+			border: 1px solid red;
+		}
+		p.blue{
+			background: lightblue;
+			border: 1px solid blue;
+		}
+		p.gray{
+			background: lightgray;
+			border: 1px solid gray;
+		}
+
+		input[type="checkbox"]{
+			position: relative;
+			left: 5px;
+			top: 3px;
+			width: 32px;
+			height: 16px;
+			background: #c6c6c6;
+			border-radius: 8px;
+			outline: none;
+			box-shadow: inset 0 0 5px rgba(0,0,0,.2);
+			transition: .5s;
+
+			appearance: none;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			-ms-appearance: none;
+			-o-appearance: none;
+		}
+		input:checked[type="checkbox"]{
+			background: #03a9f4;
+		}
+		input[type="checkbox"]:before{
+			content:'';
+			background: #fff;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 16px;
+			height: 16px;
+			border-radius: 8px;
+			transform: scale(1.1);
+			box-shadow: 0 2px 5px rgba(0,0,0,.2);
+			transition: .5s;
+		}
+		input:checked[type="checkbox"]:before{
+			left: 16px;
+		}
+
+		select{	
+			display: inline-block;
+			padding: 2px 40px 2px 2px;
+			margin: 4px;
+			background: url('css/select.png') no-repeat 95% center;
+			background-size: 16%;
+			border-radius: 4px;
+			border: 1px solid #c6c6c6;
+			font-size: 1.1em;
+		
+			appearance: none;
+			-moz-appearance: none;
+			-webkit-appearance: none;
+			-ms-appearance: none;
+			-o-appearance: none;
+		}
+		select:hover{
+			cursor: pointer;
+		}
+		button{
+			display: inline-block;
+			border-radius: 4px;
+			padding: 4px;
+			margin: 4px;
+			background: #fff;
+			border: 2px solid #c6c6c6;
+			font-size: 1.1em;		
+		}
+		button:hover{
+			cursor: pointer;
+		}
+		@font-face{
+			font-family: 'EBGaramond';
+			src: url('css/fonts/EBGaramond-Regular.ttf') format('truetype');
+		}
+		@media (max-width: 800px){
+			p.word{
+				font-size: 2vw;
+			}
+		}
+		@media (max-width: 500px){
+			p.word{
+				font-size: 3vw;
+			}
+		}
+	</style>
+</head>	
+<body>
+	<center>
+		<h1>1000 English Words</h1>
+	</center>
+	<center>
+		<div style="margin: 1vh;">
+			<button onclick="changeWords()">Новые слова</button>
+			<select id="changeNumbersOfWords" onchange="changeWords()">
+				<option value="5">5 слов</option>
+				<option value="10">10 слов</option>
+				<option value="15">15 слов</option>
+				<option value="20">20 слов</option>
+				<option value="30">30 слов</option>
+			</select>
+			<p style="display: inline-block;">Транскрипция</p><input type="checkbox" id="checkBox" onclick="transcription()">
+		</div>
+	</center>
+	<center>
+		<p id="win" style="height: 3vh; font-size: 1.5em; margin: 5vw; display: none;"></p>
+		<p id="time" style="height: 3vh; font-size: 1.5em; margin: 5vw; display: none;"></p>
+		<div id="words" style="width: 60vw;"></div>
+	</center>
+</body>
+<script type="text/javascript" src="engWords.js"></script>
+<script type="text/javascript">
+	let wordsOne = document.getElementsByClassName('word');
+	let myDiv = document.getElementById('words');
+	let timeP = document.getElementById('time');
+	let winP = document.getElementById('win');
+	let checkBox = document.getElementById('checkBox');
+	let changeNumbersOfWords = document.getElementById('changeNumbersOfWords');
+	let colors = ['green', 'yellow', 'red', 'blue', 'gray'];
+
+	//Start
+	let color = colors[randomInteger(0, 4)];
+	let numberOfWords = 5;
+	let words = wordsGenerator(numberOfWords);
+	let active = '';
+	let rights = 0;
+	let errors = 0;
+
+	let newRandomArray = randomArray(words);
+	pElementsCreation(newRandomArray, color);
+	transcription();
+
+	//Start Timer
+	let clocktimer, dateObj; 
+	let timerOn = 0;
+	let timeInS = 0;
+	StartStop();
+
+	function ClearСlock() { 
+		clearTimeout(clocktimer);
+		timerOn = 0;
+	} 
+
+	function StartTIME() { 
+		let cdateObj = new Date(); 
+		let t = (cdateObj.getTime() - dateObj.getTime()); 
+		timeInS = t/1000; 
+		clocktimer = setTimeout("StartTIME()", 1); 
+	} 
+
+	function StartStop() { 
+		if (timerOn == 0){ 
+			ClearСlock();
+			dateObj = new Date(); 
+			StartTIME();
+			timerOn = 1;
+		} else { 
+			clearTimeout(clocktimer);
+			timerOn = 0;
+		} 
+	}
+
+	function showTime(time) {
+		if (time > 59) {
+			let timeInM = Math.floor(time/60);
+			let timeS = time - timeInM*60;
+			if (timeS < 10) {
+				return (timeInM+' m '+'0'+timeS.toFixed(1)+' s');				
+			} else {
+				return (timeInM+' m '+timeS.toFixed(1)+' s');
+			}
+		} else {
+			if(time < 10){
+				return ('0'+time.toFixed(2)+' s');
+			}else{
+				return time.toFixed(2)+' s';	
+			}
+		}
+	}
+
+	function changeWords() {
+		myDiv.innerHTML = '';
+		winP.style.display = 'none';
+		timeP.style.display = 'none';
+		numberOfWords = changeNumbersOfWords.options[changeNumbersOfWords.selectedIndex].value;
+
+		if (numberOfWords == 15 || numberOfWords == 20) myDiv.style.width = '80vw';
+		else if (numberOfWords == 30) myDiv.style.width = '100vw';
+		else myDiv.style.width = '60vw';
+		
+		color = colors[randomInteger(0, 4)];
+		words = wordsGenerator(Number(numberOfWords));
+		active = '';
+		rights = 0;
+		errors = 0;
+		timerOn = 0;
+		timeInS = 0;
+		StartStop();
+		newRandomArray = randomArray(words);
+		pElementsCreation(newRandomArray, color);
+		transcription();
+	}
+
+	function show(evt) {
+		if (active == '') {
+			evt.target.style.visibility = 'hidden';
+			active = evt.target.id;
+		} else if (active == evt.target.id) {
+			evt.target.style.visibility = 'hidden';
+			rights++;
+			if(rights == wordsOne.length/2){
+				StartStop();
+				winP.innerHTML = 'You\'re done with '+errors+' errors';
+				timeInS+=errors*5;
+				timeP.innerHTML = 'Your time is '+showTime(timeInS);
+
+				winP.style.display = 'block';
+				timeP.style.display = 'block';
+			}
+			active = '';
+		} else {
+			for (let i = 0; i < wordsOne.length; i++) {
+				if (wordsOne[i].id == active) {
+					wordsOne[i].style.visibility = 'visible';				
+				}				
+			}
+			evt.target.style.visibility = 'visible';
+			errors++;
+			active = '';
+		}
+	}
+
+	function wordsGenerator(k) {
+		let num = randomInteger(0, engWords.length - k);
+		let words = engWords.slice(num, (num + k));
+		let newWords = [];
+
+		for (let i = 0; i < words.length; i++) {
+			let wordEng = {
+					'id' : i,
+					'inner' : words[i].eng,
+					'transcription' : words[i].transcription
+				};
+			newWords.push(wordEng);
+
+			let wordRus = {
+				'id' : i,
+				'inner' : words[i].rus
+			};
+			newWords.push(wordRus);
+		}
+		return newWords;
+	}
+
+	function randomInteger(min, max) {
+		let rand = min + Math.random() * (max - min);
+		return Math.round(rand);
+	}
+	function randomArray(arr) {
+		let randomArray = [];
+		for (let i = arr.length - 1; i >= 0; i--) {
+			let num = randomInteger(0, i);
+			randomArray.push(arr.splice(num, 1)[0]);
+		}
+		return randomArray;
+	}
+	function pElementsCreation(arr, color) {
+		for (let i = 0; i < arr.length; i++) {
+			let p = document.createElement('p');
+			p.id = arr[i].id;
+			p.innerHTML = arr[i].inner;
+			p.className = 'word '+color;
+			p.addEventListener('click', show);
+			myDiv.appendChild(p);
+		}
+	}
+
+	function transcription() {
+		if (checkBox.checked == true) {
+			for (let i = 0; i < wordsOne.length; i++) {
+				if (wordsOne[i].innerHTML[0].charCodeAt() >= 97 &&
+					wordsOne[i].innerHTML[0].charCodeAt() <= 122) {
+					wordsOne[i].innerHTML = '';
+					wordsOne[i].innerHTML = newRandomArray[i].inner+' / '+newRandomArray[i].transcription;
+				}
+			}
+		} else {
+			for (let i = 0; i < wordsOne.length; i++) {
+				if (wordsOne[i].innerHTML[0].charCodeAt() >= 97 &&
+					wordsOne[i].innerHTML[0].charCodeAt() <= 122) {
+					wordsOne[i].innerHTML = newRandomArray[i].inner;
+				}
+			}
+		}
+	}
+</script>
+</html>
